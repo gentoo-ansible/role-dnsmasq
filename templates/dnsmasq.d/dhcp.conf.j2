@@ -1,0 +1,58 @@
+{% macro toggle(option, value) %}
+{{ option if value | bool else '#' + option }}
+{%- endmacro %}
+# {{ ansible_managed }}
+# Configuration of dnsmasq's DHCP server.
+
+# Enable the integrated DHCP server. You need to supply the range of addresses
+# available for lease and optionally a lease time. If you have more than one
+# network, you will need to repeat this for each network on which you want
+# to supply DHCP service.
+{% for item in dnsmasq_dhcp_pools %}
+dhcp-range={{ [item.from, item.get('to', none), item.get('mode', none), item.get('lease_time', none)] | reject('none') | join(', ') }}
+{% endfor %}
+
+# Do router advertisements for all subnets where we're doing DHCPv6
+# Unless overriden by ra-stateless, ra-names, et al, the router
+# advertisements will have the M and O bits set, so that the clients
+# get addresses and configuration from DHCPv6, and the A bit reset, so the
+# clients don't use SLAAC addresses.
+{{ toggle('enable-ra', dnsmasq_ra_enabled) }}
+
+# Set the DHCP server to authoritative mode. In this mode it will barge in
+# and take over the lease for any client which broadcasts on the network,
+# whether it has a record of the lease or not. This avoids long timeouts
+# when a machine wakes up on a new network. DO NOT enable this if there's
+# the slightest chance that you might end up accidentally configuring a DHCP
+# server for your campus/company accidentally. The ISC server uses
+# the same option, and this URL provides more information:
+# http://www.isc.org/files/auth.html
+{{ toggle('dhcp-authoritative', dnsmasq_dhcp_authoritative) }}
+
+# Read DHCP host information from the specified file. If a directory is given,
+# then read all the files contained in that directory. The file contains
+# information about one host per line. The format of a line is the same as text
+# to the right of '=' in --dhcp-host. The  advantage of storing DHCP host
+# information in this file is that it can be changed without re-starting
+# dnsmasq: the file will be re-read when dnsmasq receives SIGHUP.
+{% if dnsmasq_dhcp_hosts_file %}
+dhcp-hostsfile={{ dnsmasq_dhcp_hosts_file }}
+{% else %}
+#dhcp-hostsfile=/etc/dnsmasq.d/dhcp-hosts
+{% endif %}
+
+# Ask client to poll for option changes every hour. (RFC4242)
+dhcp-option=option6:information-refresh-time,1h
+
+# Set the NTP time server address to be the same machine as
+# is running dnsmasq
+dhcp-option=42,0.0.0.0
+
+# Send microsoft-specific option to tell windows to release the DHCP lease
+# when it shuts down. Note the "i" flag, to tell dnsmasq to send the
+# value as a four-byte integer - that's what microsoft wants. See
+# http://technet2.microsoft.com/WindowsServer/en/library/a70f1bb7-d2d4-49f0-96d6-4b7414ecfaae1033.mspx?mfr=true
+dhcp-option=vendor:MSFT,2,1i
+
+# Log lots of extra information about DHCP transactions.
+#log-dhcp

@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+# Per host parameters for the dnsmasq's DHCP server, one host per line.
+# See man dnsmasq, section --dhcp-hostsfile, for more information.
+
+{% for item in dnsmasq_dhcp_hosts %}
+{% if item.mac is defined %}
+{{ [item.mac, item.ip, item.get('hostname', none), item.get('lease_time', none)] | reject('none') | join(', ') }}
+{% else %}
+{{ [item.hostname, item.ip, item.get('lease_time', none)] | reject('none') | join(',') }}
+{% endif %}
+{% endfor %}

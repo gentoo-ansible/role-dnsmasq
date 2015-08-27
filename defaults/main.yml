@@ -1,0 +1,103 @@
+---
+# If you want dnsmasq to listen for DHCP and DNS requests only on specified
+# interfaces (and the loopback), then set here an array of interface names
+# (e.g. eth0).
+dnsmasq_interfaces: []
+
+#
+# DNS
+#
+
+# Whether to enable DNS function.
+dnsmasq_dns_enabled: true
+
+# Port to listen on for DNS requests.
+dnsmasq_dns_port: 53
+
+# Specify addresses of upstream DNS servers. If empty, then addresses are read
+# from /etc/resolv.conf (note: othewise it sets "no-resolv" directive).
+# Open man dnsmasq and find "--server" for more information.
+dnsmasq_dns_servers: []
+
+# Enable DNSSEC validation and caching?
+dnsmasq_dns_dnssec: true
+
+# Size of DNS cache (stored in RAM).
+dnsmasq_dns_cache_size: 500
+
+# Set to false if you don't want dnsmasq to read /etc/hosts.
+dnsmasq_dns_read_hosts: true
+
+# Set the domain(s) for DHCP hosts. If it's set, it does the following things:
+#
+# 1. Allows DHCP hosts to have fully qualified domain names, as long
+#    as the domain part matches this setting.
+# 2. Sets the "domain" DHCP option thereby potentially setting the
+#    domain of all systems configured by DHCP.
+# 3. Provides the domain part for "expand-hosts" (see {{dnsmasq_dns_expand_hosts}}).
+#
+# You may also set a different domain for a particular subnet, for example:
+# thekelleys.org.uk,192.168.2.0/24.
+#
+dnsmasq_dns_domain: []
+
+# Whether to automatically add {{dnsmasq_dns_domain}} to simple names in
+# a hosts-file.
+dnsmasq_dns_expand_hosts: false
+
+#
+# DHCP and RA
+#
+
+# Specify address pools for DHCP and RA + DHCPv6.
+#
+# Expectes array of hashes with keys:
+#   from       - The first IPv4/IPv6 address in the pool (required).
+#   to         - The last IPv4/IPv6 address in the pool.
+#   mode       - One of static, or proxy (IPv4 only), or ra-only, slaac,
+#                ra-names, ra-stateless, ra-advrouter, and off-link (IPv6 only).
+#                Open man dnsmasq and find "--dhcp-range" for more
+#                information.
+#   netmask    - IPv4 only; for directly connected networks is optional.
+#   prefix     - IPv6 only; default is 64.
+#   lease_time - The lease time in seconds (e.g. 30), minutes (e.g. 45m),
+#                hours (e.g. 1h), or "infinite". Should not be used for IPv6.
+#
+# If empty array given, then DHCP server will be disabled.
+#
+dnsmasq_dhcp_pools: []
+
+# Specify per host parameters for the DHCP server. This allows a machine with
+# a particular MAC address (or hostname) to be always allocated the same IP
+# address, hostname and lease time.
+#
+# Expects array of hashes with keys:
+#   mac        - MAC (hardware) address (required if hostname is not given).
+#   hostname   - If "mac" is specified, then it's optional and it overrides
+#                any hostname supplied by the DHCP client. Otherwise it is
+#                required and it identifies the DHCP client instead of MAC.
+#   ip         - IP address that should be alocated (required).
+#   lease_time - The lease time in seconds (e.g. 30), minutes (e.g. 45m),
+#                hours (e.g. 1h), or "infinite".
+#
+# These entries are written into file specified by {{dnsmasq_dhcp_hosts_file}}.
+#
+dnsmasq_dhcp_hosts: []
+
+# Path of the file to read the DHCP host information from.
+dnsmasq_dhcp_hosts_file: /etc/dnsmasq.d/dhcp-hosts
+
+# Whether to set the DHCP server to authoritative mode. In this mode it will
+# barge in and take over the lease for any client which broadcasts on the
+# network, whether it has a record of the lease or not. This avoids long
+# timeouts when a machine wakes up on a new network.
+# DO NOT enable this if there's the slightest chance that you might end up
+# accidentally configuring a DHCP server for your campus/company accidentally!
+dnsmasq_dhcp_authoritative: false
+
+# Whether to do router advertisements for all subnets where we're doing DHCPv6.
+# Unless overriden by ra-stateless, ra-names, et al, the router advertisements
+# will have the M and O bits set, so that the clients get addresses and
+# configuration from DHCPv6, and the A bit reset, so the clients don't use
+# SLAAC addresses.
+dnsmasq_ra_enabled: true

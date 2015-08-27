@@ -1,0 +1,41 @@
+---
+- name: install net-dns/dnsmasq
+  portage: package=net-dns/dnsmasq
+
+- name: prepare directory /etc/dnsmasq.d
+  file: >
+    state=directory
+    path=/etc/dnsmasq.d
+    owner=root group=root mode=0755
+
+- name: configure dnsmasq
+  template: >
+    src={{ item }}.j2
+    dest=/etc/{{ item }}
+    owner=root group=root mode=0644
+  with_items:
+    - dnsmasq.conf
+    - dnsmasq.d/dhcp.conf
+    - dnsmasq.d/dns.conf
+  notify: restart dnsmasq
+
+- name: configure DHCP hosts
+  template: >
+    src=dnsmasq.d/dhcp-hosts.j2
+    dest=/etc/dnsmasq.d/dhcp-hosts
+    owner=root group=root mode=0644
+  when: dnsmasq_dhcp_hosts | length | bool
+  notify: reload dnsmasq
+
+- name: verify configuration
+  command: dnsmasq --test
+  changed_when: false
+
+# trigger handlers now to avoid unnecessary restarts
+- meta: flush_handlers
+
+- name: enable and start dnsmasq
+  service: >
+    name=dnsmasq
+    enabled=yes
+    state=started
