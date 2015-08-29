@@ -39,7 +39,7 @@ dhcp-range={{ [item.from,
 # to the right of '=' in --dhcp-host. The  advantage of storing DHCP host
 # information in this file is that it can be changed without re-starting
 # dnsmasq: the file will be re-read when dnsmasq receives SIGHUP.
-{% if dnsmasq_dhcp_hosts_file %}
+{% if dnsmasq_dhcp_hosts_file and dnsmasq_dhcp_hosts %}
 dhcp-hostsfile={{ dnsmasq_dhcp_hosts_file }}
 {% else %}
 #dhcp-hostsfile=/etc/dnsmasq.d/dhcp-hosts
