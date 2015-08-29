@@ -9,7 +9,11 @@
 # network, you will need to repeat this for each network on which you want
 # to supply DHCP service.
 {% for item in dnsmasq_dhcp_pools %}
-dhcp-range={{ [item.from, item.get('to', none), item.get('mode', none), item.get('lease_time', none)] | reject('none') | join(', ') }}
+dhcp-range={{ [item.from,
+               item.get('to', none),
+               item.get('mode', none),
+               item.get('prefix', item.get('netmask', none)),
+               item.get('lease_time', none)] | reject('none') | join(', ') }}
 {% endfor %}
 
 # Do router advertisements for all subnets where we're doing DHCPv6
