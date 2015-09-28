@@ -52,6 +52,8 @@ dnsmasq_dns_expand_hosts: false
 # Specify address pools for DHCP and RA + DHCPv6.
 #
 # Expectes array of hashes with keys:
+#   tag        - The alphanumeric label which marks this network so that dhcp
+#                options may be specified on a per-network basis (optional).
 #   from       - The first IPv4/IPv6 address in the pool (required).
 #   to         - The last IPv4/IPv6 address in the pool.
 #   mode       - One of static, or proxy (IPv4 only), or ra-only, slaac,

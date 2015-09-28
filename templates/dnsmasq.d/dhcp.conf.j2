@@ -9,7 +9,8 @@
 # network, you will need to repeat this for each network on which you want
 # to supply DHCP service.
 {% for item in dnsmasq_dhcp_pools %}
-dhcp-range={{ [item.from,
+dhcp-range={{ [('set:' + item.tag if item.tag is defined else none),
+               item.from,
                item.get('to', none),
                item.get('mode', none),
                item.get('prefix', item.get('netmask', none)),
