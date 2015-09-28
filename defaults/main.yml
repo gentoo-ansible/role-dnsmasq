@@ -71,7 +71,8 @@ dnsmasq_dhcp_pools: []
 # a particular MAC address (or hostname) to be always allocated the same IP
 # address, hostname and lease time.
 #
-# Expects array of hashes with keys:
+# Expects path to the file on a control machine that should be copied to the
+# remote machine, OR an array of hashes with keys:
 #   mac        - MAC (hardware) address (required if hostname is not given).
 #   hostname   - If "mac" is specified, then it's optional and it overrides
 #                any hostname supplied by the DHCP client. Otherwise it is
